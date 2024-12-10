@@ -1,0 +1,15 @@
+*.bat
+*exe
+*.swo 
+*.swp
+*.o
+
+# Back up files ignored
+backup/
+Backup/
+BACKUP/
+# Executable files ignored
+exec/
+EXEC/
+Exec/
+
