@@ -1,40 +1,39 @@
+#include <winuser.h>
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include "Lib/PaintLib/paint.h"
+#include <string>
+#include "Lib/display.hpp"
+#include "Lib/serial.hpp"
 
+// Serial Data
+Serial serial;
 
-struct Form {
-        const int TITLE_BAR;
-        const int WIDTH;
-        const int HEIGHT;
-        const int WINDOW_BUTTONS;
-        const char* CLASS;
-        bool dragging = false;
+// Data
+namespace LED {
+        int RED = 0;
+        int GREEN = 0;
+        int BLUE = 0;
 };
 
-struct Form frmMainData = {25, 500, 300, 60, "MAIN", false};
+std::string HEX = "#000000";
+std::string RGB = "rgb(0,0,0)";
 
-struct Button {
-        bool close = false;
-        bool minimize = false;
-};
-
-struct Button windowButton;
-
-const int TRANSPARENT_COLOR = RGB(24, 25, 30);
+const int SERIAL_TIMER = 1;
+const int CLIP_TIMER = 2;
 
 void WindowButtons(HWND hWnd);
+void Edits(HWND hWnd);
+void EditsClick(HWND hWnd);
+void ClipboardMessage(HWND hWnd); 
 
-void DrawButtons(Paint &);
-void DrawLED(Paint &);
-
-// Drawing constants
-const int PADDING = 5;
-const int MID_X = frmMainData.WIDTH / 2;
-const int MID_Y = (frmMainData.HEIGHT / 2) + frmMainData.TITLE_BAR;
-const int MID_TITLE = frmMainData.TITLE_BAR / 2;
+// Data conversion
+void ParseData(std::string & msg); // Parses and grabs rgb values from the sent data over serial
+void UpdateTextData(); // Updates strings to reflect the new rgb values
+std::string getHex(size_t decimal);
 
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT event, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK EditProc(HWND hWnd, UINT event, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
+
 
 int WINAPI WinMain(HINSTANCE hApplication, HINSTANCE hPrev, PSTR cmd_arg, int window_mode) {
 
@@ -61,10 +60,17 @@ int WINAPI WinMain(HINSTANCE hApplication, HINSTANCE hPrev, PSTR cmd_arg, int wi
                 MessageBox(NULL, "Error launching application", "Error", MB_ICONERROR);
                 return 0;
         }
-       
+
         ShowWindow(frmMain, window_mode);
         // Transparency alpha color
         SetLayeredWindowAttributes(frmMain, TRANSPARENT_COLOR, 0, LWA_COLORKEY);
+
+        // Initialize serial Communication
+        serial.port = "COM6";
+        serial.Init();
+
+        // Serial Communication Loop initialization
+        SetTimer(frmMain, SERIAL_TIMER, 50, (TIMERPROC) NULL);
 
         // Event/ App LOOP
         MSG event = {};
@@ -78,9 +84,21 @@ int WINAPI WinMain(HINSTANCE hApplication, HINSTANCE hPrev, PSTR cmd_arg, int wi
 
 POINT mouse;
 bool click = false;
+bool rgb = false;
+bool hex = false;
+LPCTSTR cursor = IDC_ARROW;
+
+bool clip_msg = false;
 
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT event, WPARAM wParam, LPARAM lParam) {
         switch (event) {
+                case WM_SETCURSOR: {
+                        HCURSOR hCursor = LoadCursor(NULL, cursor);
+                        SetCursor(hCursor);
+
+                        return TRUE;
+                }
+
                 case WM_LBUTTONDOWN: {
                         click = true;     
 
@@ -99,6 +117,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT event, WPARAM wParam, LPARAM lParam)
 
                 case WM_MOUSEMOVE: {
                         WindowButtons(hWnd);
+                        Edits(hWnd);
 
                         // Dragging window
                         if (!frmMainData.dragging) break;
@@ -125,6 +144,8 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT event, WPARAM wParam, LPARAM lParam)
                 case WM_LBUTTONUP: {
                         // Window Buttons
                         if (!click) break;
+
+                        EditsClick(hWnd);
 
                         if (windowButton.close) {
                                 SendMessage(hWnd, WM_DESTROY, wParam, lParam);
@@ -194,10 +215,44 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT event, WPARAM wParam, LPARAM lParam)
 
                         DrawButtons(paint);
                         DrawLED(paint);
+                        DrawEdits(paint);
+
+                        ClipboardMessage(hWnd);
 
                         EndPaint(hWnd, &ps);                        
                         break;
                 }
+
+                case WM_TIMER: {
+                        switch (wParam) {
+                                case CLIP_TIMER: {
+
+                                        clip_msg = false;
+                                        // Force repainting
+                                        RedrawWindow(hWnd,NULL, NULL, RDW_INVALIDATE);
+                                        KillTimer(hWnd, CLIP_TIMER);
+
+                                        break;
+                                }
+                                        
+                                // Serial Communication Loop
+                                case SERIAL_TIMER: {
+                                        if (!serial.Read()) {
+                                                ParseData(serial.data);
+                                                UpdateTextData();
+                                                RedrawWindow(hWnd,NULL, NULL, RDW_INVALIDATE);
+
+                                                serial.data.clear();
+                                        } 
+                                        
+
+                                        break;
+                                }
+
+                        }
+
+                        break;
+               }
 
         }
         
@@ -205,12 +260,129 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT event, WPARAM wParam, LPARAM lParam)
         return DefWindowProc(hWnd, event, wParam, lParam);
 }
 
+void ClipboardMessage(HWND hWnd) {
+        if (!clip_msg) return; // If not copied from clipboard dont show
+
+        Paint paint;
+        paint.area = GetDC(hWnd);
+
+        const int WIDTH = 120;
+        const int HEIGHT = 40;
+        const std::string msg = "Copied!";
+        const int PADDING = 20;
+        
+        // Container
+        paint.x = frmMainData.WIDTH - PADDING - WIDTH;
+        paint.y = (frmMainData.HEIGHT + frmMainData.TITLE_BAR) - PADDING - HEIGHT;
+        paint.xend += paint.x + WIDTH;
+        paint.yend += paint.y + HEIGHT;
+        paint.color = RGB(238, 212, 159);
+        paint.RoundRect(10);
+       
+        paint.border.width = 2;
+        paint.border.color = 0;
+        const int PADDING_CONTAINER = 3;
+        paint.x += PADDING_CONTAINER; 
+        paint.y += PADDING_CONTAINER;
+        paint.xend -= PADDING_CONTAINER;
+        paint.yend -= PADDING_CONTAINER;
+        paint.RoundRect(10);
+
+        // Text
+        paint.color = RGB(24, 25, 38);
+        paint.x += 20;
+        paint.y += 3;
+        paint.font.name = "Montserrat";
+        paint.font.size = 25;
+        paint.font.weight = 300;
+        paint.font.italics = TRUE;
+        paint.Text(msg);
+
+        ReleaseDC(hWnd, paint.area);
+}
+
+void CopyToClipboard(HWND hWnd, std::string value) { 
+        if (!OpenClipboard(hWnd)) return;
+
+        if(!EmptyClipboard()) {
+                CloseClipboard();
+                return;
+        }
+
+        const char * buf = value.c_str();
+        const size_t len = strlen(buf) + 1; // Account for terminating char????
+
+        // Memory allocation
+        HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, len); // Allocate memory accessable to whole application or OS?
+        memcpy(GlobalLock(hMem), buf, len); // Actually put buffer into memory we allocated
+        GlobalUnlock(hMem); // Allow data in allocated memory to be accessed
+
+        if (!SetClipboardData(CF_TEXT, hMem)) {
+                CloseClipboard();       
+                GlobalFree(hMem);
+                return;
+        }
+
+        CloseClipboard();       
+        GlobalFree(hMem);
+
+        // Draw message confirming copying to clipboard
+        clip_msg = true;
+        ClipboardMessage(hWnd);
+
+        // Set timer which disables message in 2s
+        SetTimer(hWnd, CLIP_TIMER, 2000, (TIMERPROC) NULL);
+}
+
+void EditsClick(HWND hWnd) {
+        if (rgb) {
+                CopyToClipboard(hWnd, RGB); 
+        } else if (hex) {
+                CopyToClipboard(hWnd, HEX); 
+        }
+
+}
+
+void DrawEdits(Paint & paint) {
+        paint.Reset();
+        
+        paint.x = 250;
+        paint.y = 125;
+        paint.xend = paint.x + EDIT_WIDTH;
+        paint.yend = paint.y + EDIT_HEIGHT;
+        paint.border.color = RGB(203, 166, 247);
+        paint.border.width = 1;
+        paint.color = RGB(41, 44, 60);
+        paint.RoundRect(10);
+
+        paint.color = RGB(205, 214, 244);
+        paint.font.size = EDIT_HEIGHT - PADDING;
+        paint.font.weight = 500;
+        paint.font.italics = TRUE;
+        paint.x += PADDING*3;
+        paint.Text(RGB);
+
+        paint.x = 250;
+        paint.y = 175;
+        paint.xend = paint.x + EDIT_WIDTH;
+        paint.yend = paint.y + EDIT_HEIGHT;
+        paint.border.color = RGB(203, 166, 247);
+        paint.border.width = 1;
+        paint.color = RGB(41, 44, 60);
+        paint.RoundRect(10);
+
+        paint.color = RGB(205, 214, 244);
+        paint.font.size = EDIT_HEIGHT - PADDING;
+        paint.font.weight = 500;
+        paint.font.italics = TRUE;
+        paint.y += PADDING/2;
+        paint.x += PADDING*3;
+        paint.Text(HEX);
+}
+
 void DrawLED(Paint & paint) {
         paint.Reset();
         
-        int color = RGB(73, 77, 100);
-        color = RGB(255, 255, 0);
-
         const int LED_DIAMETER = 100;
         const int START_X = 75;
         const int START_Y = 75;
@@ -220,14 +392,14 @@ void DrawLED(Paint & paint) {
         paint.xend = paint.x + LED_DIAMETER;
         paint.y = START_Y;
         paint.yend = paint.y + LED_DIAMETER;
-        paint.color = color; 
+        paint.color = RGB(LED::RED, LED::GREEN, LED::BLUE); 
         paint.Circle();
         // Remove rounding at top
         paint.y += LED_DIAMETER/2; // Ensure stats at diameter
         paint.yend = paint.y + 10;
         paint.Rectangle();
         // Round
-        paint.yend = paint.y + LED_DIAMETER/2;
+paint.yend = paint.y + LED_DIAMETER/2;
         paint.RoundRect(10);
 
         // Draw legs with equal spacing
@@ -244,6 +416,30 @@ void DrawLED(Paint & paint) {
                 paint.xend = paint.x + LEG_WIDTH;
                 paint.Rectangle();                
         }
+}
+
+void Edits(HWND hWnd) {
+        rgb = false;
+        hex = false;
+
+        if (frmMainData.dragging) return;
+
+        GetCursorPos(&mouse);
+        ScreenToClient(hWnd, &mouse); // Convert mouse position to pos on client area
+        
+        const bool inrange_x = mouse.x >= 250 && mouse.x <= 250 + EDIT_WIDTH;
+        if (inrange_x && (mouse.y >= 125 && mouse.y <= 125 + EDIT_HEIGHT)) {
+                rgb = true;
+                hex = false;
+        } else if (inrange_x && (mouse.y >= 175 && mouse.y <= 175 + EDIT_HEIGHT)) {
+                rgb = false;
+                hex = true;
+        } else {
+                cursor = IDC_ARROW;
+                return;
+        }
+
+        cursor = IDC_HAND;
 }
 
 void WindowButtons(HWND hWnd) {
@@ -311,4 +507,87 @@ void DrawButtons(Paint & paint) {
         paint.xend += 20;
         paint.color = minimize; 
         paint.Circle();
+}
+
+void ParseData(std::string & msg) {
+        /*
+         * Expects data to be in RED,GREEN,BLUE format
+         * Delimeter = ','
+         *
+         */
+        const int TEMP_RED = LED::RED;
+        const int TEMP_GREEN = LED::GREEN;
+        const int TEMP_BLUE = LED::BLUE;
+
+        size_t delim;
+
+        try {
+                // Copy red channel value
+                delim = msg.find(",");
+                if (delim == std::string::npos) { 
+                        return;
+                }
+
+                LED::RED = std::stoi(msg.substr(0,delim));
+                msg = msg.substr(delim+1);
+
+                // Copy green channel value
+                delim = msg.find(",");
+                if (delim == std::string::npos) { 
+                        return;
+                }
+
+                LED::GREEN = std::stoi(msg.substr(0,delim));
+                msg = msg.substr(delim+1);
+
+                LED::BLUE = std::stoi(msg);
+        } catch (...) {
+                // Reroll
+                LED::RED = TEMP_RED;
+                LED::GREEN = TEMP_GREEN;
+                LED::BLUE = TEMP_BLUE;
+
+                return;
+        }
+        
+}
+
+std::string getHex(size_t decimal) {
+        if (decimal == 0) return "00";
+
+        std::string hex = "";
+
+        do {
+                int rem = decimal % 16;
+                decimal /= 16;                
+
+                if (rem < 10) {
+                        hex = std::to_string(rem) + hex;
+                } else {
+                        // Get letter associated with hex
+                        char hex_char = 'A' + (rem - 10);
+
+                        hex = hex_char + hex;
+                }
+        } while (decimal != 0);
+
+        return hex;
+}
+
+void UpdateTextData() {
+        RGB = "";
+        HEX = "";
+        
+        // Get RGB values
+        RGB = "rgb(";
+        RGB += std::to_string(LED::RED) + ",";
+        RGB += std::to_string(LED::GREEN) + ",";
+        RGB += std::to_string(LED::BLUE);
+        RGB += ")";
+
+        // Convert to hexadecimal
+        HEX = "#";
+        HEX += getHex(LED::RED);
+        HEX += getHex(LED::GREEN);
+        HEX += getHex(LED::BLUE);
 }
