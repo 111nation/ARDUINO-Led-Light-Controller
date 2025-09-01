@@ -22,6 +22,6 @@ _Program written in my GDI wrapper, which is also hosted on this account_
 2. Windows API/ SDK Installed
 3. Arduino (TODO: Upload Arduino's code)
 
-   > [!NOTE]
-   > Remember to specify the `COM` Port that the program will attempt to communicate with the Arduino. Otherwise, the program will return a communication error.
-   > This is done in `main.cpp` under the global variable `PORT`.
+> [!NOTE]
+> Remember to specify the `COM` Port that the program will attempt to communicate with the Arduino. Otherwise, the program will return a communication error.
+> This is done in `main.cpp` under the global variable `PORT`.
