@@ -26,8 +26,9 @@ _Program written in my GDI wrapper, which is also hosted on this account_
 > Remember to specify the `COM` Port that the program will attempt to communicate with the Arduino. Otherwise, the program will return a communication error.
 > This is done in `main.cpp` under the global variable `PORT`.
 
-![20250901_160207](https://github.com/user-attachments/assets/893633f9-3d76-47fc-840f-35e9a3cf50e6)
-![20250901_160207](https://github.com/user-attachments/assets/dd4efd55-b260-425d-a4d8-a4a908964f4c)
 
-![20250901_160149](https://github.com/user-attachments/assets/ef5f0cf9-e775-476a-b56e-bd0f80fc1836)
+![20250901_160207](https://github.com/user-attachments/assets/dd4efd55-b260-425d-a4d8-a4a908964f4c)
+![20250901_160205](https://github.com/user-attachments/assets/d5c8bb6b-11eb-4ffe-b256-d2ad802f3a5f)
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/4ae7d588-642b-4c0b-b9ce-6a6b5f77e463" />
 <img width="1920" height="1080" alt="Screenshot 2025-09-01 160355" src="https://github.com/user-attachments/assets/08964aaf-a72e-4cd1-921b-1156b48fef28" />
