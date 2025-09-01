@@ -15,6 +15,7 @@ namespace LED {
         int BLUE = 0;
 };
 
+std::string PORT = "COM3"; // Change which serial port arduino connected to
 std::string HEX = "#000000";
 std::string RGB = "rgb(0,0,0)";
 
@@ -66,7 +67,7 @@ int WINAPI WinMain(HINSTANCE hApplication, HINSTANCE hPrev, PSTR cmd_arg, int wi
         SetLayeredWindowAttributes(frmMain, TRANSPARENT_COLOR, 0, LWA_COLORKEY);
 
         // Initialize serial Communication
-        serial.port = "COM6";
+        serial.port = PORT;
         serial.Init();
 
         // Serial Communication Loop initialization
