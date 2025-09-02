@@ -1,10 +1,10 @@
-## Arduino LED Light Controller
+# Arduino LED Light Controller
 
 _A fun project where you can change the LED display colour and view its data in real time_ <br />
 _Written in Arduino c++, c++ and windows c api_
 _Program written in my GDI wrapper, which is also hosted on this account_
 
-#### Preview
+## Preview
 <table>
   <tr>
     <td>
@@ -16,14 +16,14 @@ _Program written in my GDI wrapper, which is also hosted on this account_
   </tr>
 </table>
 
-#### Requirements
+## Requirements
 
-##### Software
+### Software
 1. C++ compiler (Change compiler in the `Makefile` using the `CXX` variable)
 2. Windows API
 3. Arduino IDE (TODO: Upload Arduino's code)
 
-##### Hardware 
+### Hardware 
 _The hardware set up will be included in the next section_
 1. Arduino Uno (Or any PWM supported Arduino)
 2. RGB Light
@@ -31,16 +31,16 @@ _The hardware set up will be included in the next section_
 4. 10K Ohm Resistors x 2 
 5. Wires, lots and lots of wires!
 
-#### Setting up project
+## Setting up project
 
-##### Compiling the Arduino's Code
+### Compiling the Arduino's Code
 
 > [!TIP]
 > View the hardware schematic [here](https://www.tinkercad.com/things/3vjTRE9jWru-arduino-led?sharecode=U9ETlC6QbMGK1n0t5VS8EiUdgKE64ssl48DPOJ-cmzk)
 
 Wire the components according to the comment in `Arduino/main.o`. Or modify the global variables to your desired pins. Compile and upload the code into the Arduino.
 
-##### Compiling the User Software
+### Compiling the User Software
 Specify the `COM` Port that the program will attempt to communicate with the Arduino. Otherwise, the program may return a communication error. This is done in `main.cpp` under the global variable `PORT`. Compile the program. 
 
 Plug in the Arduino **BEFORE** running the program.
