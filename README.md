@@ -45,7 +45,9 @@ Specify the `COM` Port that the program will attempt to communicate with the Ard
 
 Plug in the Arduino **BEFORE** running the program.
 
-<img width="35%" alt="image" src="https://github.com/user-attachments/assets/dd4efd55-b260-425d-a4d8-a4a908964f4c" />
-<img width="35%" alt="image" src="https://github.com/user-attachments/assets/d5c8bb6b-11eb-4ffe-b256-d2ad802f3a5f" />
-<img width="35%" alt="image" src="https://github.com/user-attachments/assets/4ae7d588-642b-4c0b-b9ce-6a6b5f77e463" />
-<img width="35%" alt="Screenshot 2025-09-01 160355" src="https://github.com/user-attachments/assets/08964aaf-a72e-4cd1-921b-1156b48fef28" />
+<div align="center">
+    <img width="35%" alt="image" src="https://github.com/user-attachments/assets/dd4efd55-b260-425d-a4d8-a4a908964f4c" />
+    <img width="35%" alt="image" src="https://github.com/user-attachments/assets/d5c8bb6b-11eb-4ffe-b256-d2ad802f3a5f" />
+    <img width="35%" alt="image" src="https://github.com/user-attachments/assets/4ae7d588-642b-4c0b-b9ce-6a6b5f77e463" />
+    <img width="35%" alt="Screenshot 2025-09-01 160355" src="https://github.com/user-attachments/assets/08964aaf-a72e-4cd1-921b-1156b48fef28" />
+</div>
