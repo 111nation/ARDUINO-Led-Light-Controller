@@ -43,6 +43,13 @@ Wire the components according to the comment in `Arduino/main.o`. Or modify the 
 ### Compiling the User Software
 Specify the `COM` Port that the program will attempt to communicate with the Arduino. Otherwise, the program may return a communication error. This is done in `main.cpp` under the global variable `PORT`. Compile the program. 
 
+```c++
+string PORT = "COMX"
+```
+
+> [!TIP]
+> To find out the Arduino's COM Port, use Arduino IDE or plug in your Arduino and use device manager to determine which COM port the Arduino is connected to.
+
 Plug in the Arduino **BEFORE** running the program.
 
 <div align="center">
