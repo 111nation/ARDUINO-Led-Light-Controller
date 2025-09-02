@@ -34,6 +34,10 @@ _The hardware set up will be included in the next section_
 #### Setting up project
 
 ##### Compiling the Arduino's Code
+
+> [!TIP]
+> View the hardware schematic [here](https://www.tinkercad.com/things/3vjTRE9jWru-arduino-led?sharecode=U9ETlC6QbMGK1n0t5VS8EiUdgKE64ssl48DPOJ-cmzk)
+
 Wire the components according to the comment in `Arduino/main.o`. Or modify the global variables to your desired pins. Compile and upload the code into the Arduino.
 
 ##### Compiling the User Software
