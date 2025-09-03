@@ -21,7 +21,7 @@ _Program written in my GDI wrapper, which is also hosted on this account_
 ### Software
 1. C++ compiler (Change compiler in the `Makefile` using the `CXX` variable)
 2. Windows API
-3. Arduino IDE (TODO: Upload Arduino's code)
+3. Arduino IDE
 
 ### Hardware 
 _The hardware set up will be included in the next section_
