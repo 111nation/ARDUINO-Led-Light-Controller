@@ -4,13 +4,6 @@ _A fun project where you can change the LED display colour and view its data in 
 _Written in Arduino c++, c++ and windows c api_
 _Program written in my GDI wrapper, which is also hosted on this account_
 
-<div align="center">
-    <img width="35%" alt="image" src="https://github.com/user-attachments/assets/dd4efd55-b260-425d-a4d8-a4a908964f4c" />
-    <img width="35%" alt="image" src="https://github.com/user-attachments/assets/d5c8bb6b-11eb-4ffe-b256-d2ad802f3a5f" />
-    <img width="35%" alt="image" src="https://github.com/user-attachments/assets/4ae7d588-642b-4c0b-b9ce-6a6b5f77e463" />
-    <img width="35%" alt="Screenshot 2025-09-01 160355" src="https://github.com/user-attachments/assets/08964aaf-a72e-4cd1-921b-1156b48fef28" />
-</div>
-
 ## Preview
 <table>
   <tr>
@@ -58,3 +51,10 @@ string PORT = "COMX"
 > To find out the Arduino's COM Port, use Arduino IDE or plug in your Arduino and use device manager to determine which COM port the Arduino is connected to.
 
 Plug in the Arduino **BEFORE** running the program.
+
+<div align="center">
+    <img width="35%" alt="image" src="https://github.com/user-attachments/assets/dd4efd55-b260-425d-a4d8-a4a908964f4c" />
+    <img width="35%" alt="image" src="https://github.com/user-attachments/assets/d5c8bb6b-11eb-4ffe-b256-d2ad802f3a5f" />
+    <img width="35%" alt="image" src="https://github.com/user-attachments/assets/4ae7d588-642b-4c0b-b9ce-6a6b5f77e463" />
+    <img width="35%" alt="Screenshot 2025-09-01 160355" src="https://github.com/user-attachments/assets/08964aaf-a72e-4cd1-921b-1156b48fef28" />
+</div>
