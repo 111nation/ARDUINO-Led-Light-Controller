@@ -24,8 +24,8 @@ _Program written in my GDI wrapper, which is also hosted on this account_
 3. Arduino IDE
 
 ### Hardware 
-_The hardware set up will be included in the next section_
-1. Arduino Uno (Or any PWM supported Arduino)
+_The hardware setup will be included in the next section_
+1. Arduino Uno (Or any PWM-supported Arduino)
 2. RGB Light
 3. Buttons x 2
 4. 10K Ohm Resistors x 2 
@@ -38,7 +38,7 @@ _The hardware set up will be included in the next section_
 > [!TIP]
 > View the hardware schematic [here](https://www.tinkercad.com/things/3vjTRE9jWru-arduino-led?sharecode=U9ETlC6QbMGK1n0t5VS8EiUdgKE64ssl48DPOJ-cmzk)
 
-Wire the components according to the comment in `Arduino/Arduino.o`. Or modify the global variables to your desired pins. Compile and upload the code into the Arduino.
+Wire the components according to the comment in `Arduino/Arduino.ino`. Or modify the global variables to your desired pins. Compile and upload the code into the Arduino.
 
 ### Compiling the User Software
 Specify the `COM` Port that the program will attempt to communicate with the Arduino. Otherwise, the program may return a communication error. This is done in `main.cpp` under the global variable `PORT`. Compile the program. 
